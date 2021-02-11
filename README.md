@@ -39,8 +39,8 @@ public class PieSample{
 }
 
 ```
-![result](img/PieSample.png)
-
+## resulting output
+![pie graph](img/PieSample.png)
 
 ------------------------------------------------------------------------------------------------------
 
@@ -95,3 +95,5 @@ public class LineSample{
 	}
 }
 ```
+## reuslting output
+![line graph](img/LineSample.png)
