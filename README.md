@@ -39,7 +39,7 @@ public class PieSample{
 }
 
 ```
-[result](img/PieSample.png)
+![result](img/PieSample.png)
 
 
 ------------------------------------------------------------------------------------------------------
