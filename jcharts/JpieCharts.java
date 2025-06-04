@@ -1,31 +1,61 @@
 package jcharts;
 
-import java.awt.*;
-import javax.swing.*;
-import java.util.*;
-import java.awt.geom.Arc2D;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.Random;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 public class JpieCharts extends JPanel
 {
-    
+    private final MyGraphics myGraphics;  // Add this field
+    private Color[] customColors;  // Add field for custom colors
+
+    public JpieCharts(int[] dimensions, String[] legends, int[] values)
+    {
+        // Initialize with default random colors
+        this(dimensions, legends, values, null);
+    }
+
+    // Add constructor with custom colors
+    public JpieCharts(int[] dimensions, String[] legends, int[] values, Color[] colors) {
+        this.customColors = colors;
+        myGraphics = new MyGraphics(dimensions, legends, values);  // Store reference
+        this.add(myGraphics);
+        this.setSize(dimensions[0], dimensions[1]);
+    }
+
+    // Add method to update data
+    public void updateData(int[] newValues) {
+        myGraphics.updateValues(newValues);
+        repaint();  // Trigger repaint of the component
+    }
+
+    // Add method to update colors
+    public void setColors(Color[] colors) {
+        this.customColors = colors;
+        repaint();
+    }
+
     public class MyGraphics extends JComponent
     {
         private static final long serialVersionUID = 1L;
 
-        private String[] legends;
+        private final String[] legends;
         private int[] values;
         private double[] percentage;
 
-        private int quantity;
+        private final int quantity;
         private int total;
         
-        private int panelWidth;
-        private int panelHeight;
+        private final int panelWidth;
+        private final int panelHeight;
 
-        private int circleDiameter;
-        private int margin;
-
-        private int legendCnt;
+        private final int circleDiameter;
+        private final int margin;
 
         MyGraphics(int[] dimensions, String[] legends, int[] values)
         {
@@ -76,7 +106,14 @@ public class JpieCharts extends JPanel
             for(int i=0; i<quantity; ++i)
             {
                 int currentArea = (int)Math.round(360.0*percentage[i]);
-                g2d.setColor(new Color(rand(0,225),rand(0,225),rand(0,225)));
+                
+                // Use custom color if available, otherwise use random color
+                if (customColors != null && i < customColors.length) {
+                    g2d.setColor(customColors[i]);
+                } else {
+                    g2d.setColor(new Color(rand(0,225), rand(0,225), rand(0,225)));
+                }
+
                 g2d.fillArc(margin,(int)Math.round((double)margin/1.5),circleDiameter,circleDiameter,
                     prevDeg+randomAngle,currentArea
                 );
@@ -99,11 +136,23 @@ public class JpieCharts extends JPanel
             }
             return new Random().nextInt(max - min + 1) + min;
         }
-    }
 
-    public JpieCharts(int[] dimensions, String[] legends, int[] values)
-    {
-        this.add(new MyGraphics(dimensions,legends,values));
-        this.setSize(dimensions[0],dimensions[1]);
+        // Add method to update values
+        public void updateValues(int[] newValues) {
+            if (newValues.length != quantity) {
+                throw new IllegalArgumentException("New values array must be same length as original");
+            }
+            
+            this.values = newValues;
+            total = 0;
+            for(int i = 0; i < quantity; ++i) {
+                total += values[i];
+            }
+
+            percentage = new double[quantity];
+            for(int i = 0; i < quantity; ++i) {
+                percentage[i] = total > 0 ? (double)values[i]/(double)total : 0;
+            }
+        }
     }
 }
