@@ -6,16 +6,23 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.Random;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class JpieCharts extends JPanel
 {
     private final MyGraphics myGraphics;  // Add this field
+    private Color[] customColors;  // Add field for custom colors
 
     public JpieCharts(int[] dimensions, String[] legends, int[] values)
     {
+        // Initialize with default random colors
+        this(dimensions, legends, values, null);
+    }
+
+    // Add constructor with custom colors
+    public JpieCharts(int[] dimensions, String[] legends, int[] values, Color[] colors) {
+        this.customColors = colors;
         myGraphics = new MyGraphics(dimensions, legends, values);  // Store reference
         this.add(myGraphics);
         this.setSize(dimensions[0], dimensions[1]);
@@ -25,6 +32,12 @@ public class JpieCharts extends JPanel
     public void updateData(int[] newValues) {
         myGraphics.updateValues(newValues);
         repaint();  // Trigger repaint of the component
+    }
+
+    // Add method to update colors
+    public void setColors(Color[] colors) {
+        this.customColors = colors;
+        repaint();
     }
 
     public class MyGraphics extends JComponent
@@ -93,7 +106,14 @@ public class JpieCharts extends JPanel
             for(int i=0; i<quantity; ++i)
             {
                 int currentArea = (int)Math.round(360.0*percentage[i]);
-                g2d.setColor(new Color(rand(0,225),rand(0,225),rand(0,225)));
+                
+                // Use custom color if available, otherwise use random color
+                if (customColors != null && i < customColors.length) {
+                    g2d.setColor(customColors[i]);
+                } else {
+                    g2d.setColor(new Color(rand(0,225), rand(0,225), rand(0,225)));
+                }
+
                 g2d.fillArc(margin,(int)Math.round((double)margin/1.5),circleDiameter,circleDiameter,
                     prevDeg+randomAngle,currentArea
                 );
